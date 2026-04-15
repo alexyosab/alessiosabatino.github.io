@@ -679,14 +679,45 @@ const obs=new IntersectionObserver(entries=>{
 },{threshold:.08});
 document.querySelectorAll('.rev').forEach(el=>obs.observe(el));
 
-function submitForm(){
-  const n=document.getElementById('fn').value.trim();
-  const e=document.getElementById('fe').value.trim();
-  const v=document.getElementById('fv').value;
-  const m=document.getElementById('fm').value.trim();
-  if(!n||!e||!m){alert('Compila tutti i campi obbligatori.');return;}
-  window.location.href='mailto:ale.sabatino02@gmail.com?subject=Portfolio%20-%20'+encodeURIComponent(v||'Richiesta')+'&body='+encodeURIComponent('Nome: '+n+'\nEmail: '+e+'\nServizio: '+v+'\n\n'+m);
-  document.getElementById('fok').style.display='block';
+async function submitForm(){
+  const n = document.getElementById('fn').value.trim();
+  const e = document.getElementById('fe').value.trim();
+  const v = document.getElementById('fv').value;
+  const m = document.getElementById('fm').value.trim();
+  if(!n || !e || !m){ alert('Compila tutti i campi obbligatori.'); return; }
+
+  const btn = document.querySelector('.fsub');
+  btn.textContent = 'Invio in corso...';
+  btn.disabled = true;
+  btn.style.opacity = '.6';
+
+  try {
+    const res = await fetch('https://formspree.io/f/mwvavlge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ name: n, email: e, service: v, message: m })
+    });
+
+    if(res.ok){
+      document.getElementById('fok').style.display = 'block';
+      document.getElementById('fn').value = '';
+      document.getElementById('fe').value = '';
+      document.getElementById('fv').selectedIndex = 0;
+      document.getElementById('fm').value = '';
+      btn.textContent = 'Messaggio inviato ✓';
+      btn.style.background = '#4ADE80';
+    } else {
+      alert('Errore nell\'invio. Riprova o scrivimi direttamente a ale.sabatino02@gmail.com');
+      btn.textContent = 'Invia messaggio ↗';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  } catch(err){
+    alert('Errore di rete. Controlla la connessione e riprova.');
+    btn.textContent = 'Invia messaggio ↗';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
 }
 </script>
 </body>
